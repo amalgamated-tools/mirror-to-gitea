@@ -1,5 +1,7 @@
 # Automatically Mirror Github Repo To Your Gitea Server
 
+> **Note:** This application has been converted from Node.js to Go for better performance, smaller Docker images, and easier deployment. The functionality remains the same.
+
 This project is considered in maintenance mode and will only receive bug-fixes but likely no new features. 
 A potential successor may be [Gitea-Mirror](https://github.com/RayLabsHQ/gitea-mirror).
 
@@ -11,12 +13,12 @@ If you are interested in taking over the project, feel free to reach out to me.
 
 ## Description
 
-This script automatically mirrors the repositories from a github-user or github-organization to your gitea server.
+This application automatically mirrors the repositories from a github-user or github-organization to your gitea server.
 Once started, it will create a mirrored repository under a given token for a gitea user, completely automatically.
 
 Example:
 A github user `github-user` has public repositories `dotfiles` and `zsh-config`.
-Starting the script with a gitea token for the account `gitea-user` will create the following mirrored repositories:
+Starting the application with a gitea token for the account `gitea-user` will create the following mirrored repositories:
 
 - github.com/github-user/dotfiles &rarr; your-gitea.url/gitea-user/dotfiles
 - github.com/github-user/zsh-config &rarr; your-gitea.url/gitea-user/zsh-config
