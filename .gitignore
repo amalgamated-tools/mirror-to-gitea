@@ -5,3 +5,15 @@ node_modules/
 .task/
 
 dist/
+
+# Go build artifacts
+mirror-to-gitea
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum

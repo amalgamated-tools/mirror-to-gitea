@@ -199,21 +199,26 @@ services:
 
 ### Prerequisites
 
-- nodejs
-- [task](https://taskfile.dev)
-- docker
+- Go 1.24 or later
+- Docker (optional, for Docker builds)
 
-### Execute verification
+### Building
 
 ```sh
-task world
+go build -o mirror-to-gitea .
+```
+
+### Running Tests
+
+```sh
+go test -v ./...
 ```
 
 ### Running locally
 
-Create `.secrets.rc` containing at least the following variables:
+Set the following environment variables:
 
-```rc
+```sh
 export GITHUB_USERNAME='...'
 export GITHUB_TOKEN='...'
 export GITEA_URL='...'
@@ -229,10 +234,10 @@ export MIRROR_ORGANIZATIONS='true'
 # export GITEA_ORG_VISIBILITY='public'
 ```
 
-Execute the script in foreground:
+Execute the application in foreground:
 
 ```sh
-task run-local
+./mirror-to-gitea
 ```
 
 ## Kudos

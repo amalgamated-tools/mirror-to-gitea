@@ -1,57 +1,48 @@
 # Build stage
-FROM node:lts-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
+# Install ca-certificates for HTTPS requests
+RUN apk --no-cache add ca-certificates git
 
-# Install all dependencies (including dev dependencies needed for build)
-RUN npm ci
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
 
 # Copy source code
-COPY --chown=node:node . .
+COPY . .
 
-# Build the application with minification
-RUN npm run build -- --minify
-
-# Prune dependencies stage
-FROM node:lts-alpine AS deps
-
-WORKDIR /app
-
-# Copy package files
-COPY --from=builder /app/package.json /app/package-lock.json ./
-
-# Install production dependencies only
-RUN npm install --omit=dev --production && \
-    # Remove unnecessary npm cache and temp files to reduce size
-    npm cache clean --force && \
-    rm -rf /tmp/* /var/cache/apk/*
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-w -s" -o mirror-to-gitea .
 
 # Production stage
-FROM node:lts-alpine AS production
+FROM alpine:latest AS production
 
 # Add Docker Alpine packages and remove cache in the same layer
 RUN apk --no-cache add ca-certificates tini && \
     rm -rf /var/cache/apk/*
 
 # Set non-root user for better security
-USER node
+RUN addgroup -g 1000 appuser && \
+    adduser -D -u 1000 -G appuser appuser
 
-# Set working directory owned by node user
+USER appuser
+
+# Set working directory owned by appuser
 WORKDIR /app
 
 # Copy only the built application and entry point from builder
-COPY --from=builder --chown=node:node /app/dist ./dist
-COPY --from=builder --chown=node:node /app/docker-entrypoint.sh .
-
-# Copy only production node_modules
-COPY --from=deps --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appuser /app/mirror-to-gitea .
+COPY --chown=appuser:appuser docker-entrypoint.sh .
 
 # Make entry point executable
+USER root
 RUN chmod +x /app/docker-entrypoint.sh
+USER appuser
 
 # Set environment to production to disable development features
 ENV NODE_ENV=production
