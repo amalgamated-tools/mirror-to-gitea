@@ -8,7 +8,7 @@ DELAY="${DELAY:-3600}"
 while true
 do
   echo "Starting to create mirrors..."
-  node /app/dist/index.js
+  /app/mirror-to-gitea
 
   case $SINGLE_RUN in
     (TRUE | true | 1) break;;

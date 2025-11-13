@@ -8,13 +8,16 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-go@v5
       with:
-        node-version: lts/*
-    - uses: arduino/setup-task@v2
-    - run: task world
+        go-version: '1.24'
+    - name: Install dependencies
+      run: go mod download
+    - name: Run tests
+      run: go test -v ./...
+    - name: Build
+      run: go build -v .
